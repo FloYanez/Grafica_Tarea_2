@@ -9,6 +9,7 @@ from OpenGL.GL import *  # importa las funciones de OpenGL
 from math import *
 import transformations as tr
 import shapes as s
+import basic_shapes as bs
 import scene_graph as sg
 import easy_shaders as es
 
@@ -234,3 +235,53 @@ class Cuerpo(object):
 
     def get_satellites_objects(self):
         return self.satellites_objects
+
+
+class Sphere(object):
+    def __init__(self, color, radius):
+        self.color = color
+        self.radius = radius
+
+        # Figuras básicas
+        GPUsphere = es.toGPUShape(s.createColorSphere(*self.color, 4))
+
+        sphere = sg.SceneGraphNode('sphere')
+        sphere.transform = tr.uniformScale(radius)
+        sphere.childs += [GPUsphere]
+
+        transform = sg.SceneGraphNode('TR')
+        transform.childs += [sphere]
+
+        self.root = transform
+
+    def draw(self, pipeline_color, pipeline_line, projection, view):
+        root = self.get_root()
+        sphere = sg.findNode(root, 'sphere')
+
+        glUseProgram(pipeline_color.shaderProgram)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline_color.shaderProgram, 'projection'), 1, GL_TRUE,
+                           projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline_color.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(sphere, pipeline_color, 'transform')
+
+    def get_root(self):
+        return self.root
+
+
+class Axis(object):
+
+    def __init__(self):
+        self.model = es.toGPUShape(bs.createAxis(1))
+        self.show = True
+
+    def toggle(self):
+        self.show = not self.show
+
+    def draw(self, pipeline, projection, view):
+        if not self.show:
+            return
+        glUseProgram(pipeline.shaderProgram)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'model'), 1, GL_TRUE, tr.identity())
+        pipeline.drawShape(self.model, GL_LINES)

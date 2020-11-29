@@ -77,7 +77,7 @@ def createColorCircumference(r, g, b, radius=1):
     indices = []
     nodos = len(x)
     for i in range(nodos):
-        if i < nodos-1:
+        if i < nodos - 1:
             indices.append(i)
             indices.append(i + 1)
             indices.append(i + 629)
@@ -85,6 +85,7 @@ def createColorCircumference(r, g, b, radius=1):
             indices.append(i + 629 + 1)
             indices.append(i + 1)
     return Shape(vertices, indices)
+
 
 def createGradientQuad(r1, g1, b1, r2, g2, b2):
     # Defining locations and colors for each vertex of the shape
@@ -100,5 +101,89 @@ def createGradientQuad(r1, g1, b1, r2, g2, b2):
     indices = [
         0, 1, 2,
         2, 3, 0]
+
+    return Shape(vertices, indices)
+
+
+# The number of triangles is sides/2 - 2
+def createColorSphere(r, g, b, sides=32):
+    t = np.linspace(-np.pi, np.pi, sides+1)
+    z = np.linspace(-1, 1, sides+1)
+    angle = np.linspace(0, np.pi, sides+1)
+    radius = np.sin(angle)
+
+    # Defining locations and colors for each vertex of the shape
+    vertices = []
+    for j in range(sides + 1):
+        if j == 0 or j == sides:
+            vertices += [0, 0, z[j]]
+            vertices += [r, g, b]
+        else:
+            x = radius[j] * np.sin(t)
+            y = radius[j] * np.cos(t)
+
+            for i in range(sides):
+                vertices += [x[i], y[i], z[j]]  # Positions
+                vertices += [r, g, b]  # Colors
+
+    # Defining connections among vertices
+    indices = []
+    nodes = len(vertices)//6
+    #for i in range(nodes):
+    #    if i == 0:  # Triangulos inferiores
+    #        #for j in range(i+1, sides):
+    #        #    indices += [i, j, (j+1) % (sides+1)]
+    #        #indices += [i, sides, 1]
+    #        continue
+    #    elif i == nodes - 1:  # Triangulos superiores
+    #        #for j in range(i-sides, i-1):
+    #        #    indices += [i, j, j+1]
+    #        #indices += [i, i-1, i-sides]
+    #        continue
+    #    elif i <= 4:
+    #        indices += [i, i+1, i+sides]
+    #        indices += [i+1, i+sides, i+1+sides]
+
+# Cheking every level
+    for i in range(sides):
+        print(f"level = {i}")
+        if i == 0:  # Triangulos inferiores
+            print("Case 1")
+            for j in range(i+1, sides):
+                indices += [i, j, (j+1) % (sides+1)]
+                print(f"{i} {j} {(j+1) % (sides+1)}")
+            indices += [i, sides, 1]
+            print(f"{i} {sides} {1}")
+        elif i == sides - 1:  # Triangulos superiores
+            print("Case 2")
+            for j in range(0, sides):
+                k = (sides - 1) * i + j
+                if j == sides - 1:
+                    indices += [nodes - 1, k, (sides - 1) * i]
+                    print(f"{nodes - 1} {k} {(sides - 1) * i}")
+                else:
+                    indices += [nodes - 1, k, k+1]
+                    print(f"{nodes - 1} {k} {k+1}")
+        else:
+            print("Case 3")
+            for j in range(1, sides+1):
+                k = (i - 1) * sides + j
+                if j == sides + 1:
+                    indices += [k, k + 1, k + sides]
+                    print(f"{k} {k + 1} {k + sides}")
+                    indices += [k + 1, (i - 1) * sides + 1, k + 1 + sides]
+                    print(f"{k + 1} {(i - 1) * sides + 1} {k + 1 + sides}")
+                else:
+                    indices += [k, k+1, k+sides]
+                    print(f"{k} {k+1} {k + sides}")
+                    indices += [k+1, k+sides, k+1+sides]
+                    print(f"{k+1} {k + sides} {k+1+sides}")
+
+    #for i in range(0, len(indices), 3):
+    #    print(f"{indices[i]} {indices[i+1]} {indices[i+2]}")
+
+    #print(X)
+    #print(Y)
+    #print(Z)
 
     return Shape(vertices, indices)

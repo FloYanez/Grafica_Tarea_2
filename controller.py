@@ -3,6 +3,7 @@ import sys
 
 from modelos import *
 
+
 # A class to store the application control
 class Controller():
     model: 'System'
@@ -34,24 +35,23 @@ class Controller():
         self.set_planet_id(new_id)
         planet = self.get_planet_list()[new_id]
 
-
-        self.selected.select() #deselect previous
+        self.selected.select()  # deselect previous
         self.selected = planet
-        self.selected.select() #select
+        self.selected.select()  # select
 
     def get_planet_list(self):
         return self.planet_list
 
     # Should be recursive
-    def set_planet_list(self):
-        planets = self.get_planet_list()
-        model = self.get_model()
-        planets.append(self.get_model())
-        for planeta in model.get_satellites_objects():
-            planets.append(planeta)
-            for satellite in planeta.get_satellites_objects():
-                planets.append(satellite)
-        self.n = len(planets)
+    #def set_planet_list(self):
+    #    planets = self.get_planet_list()
+    #    model = self.get_model()
+    #    planets.append(self.get_model())
+    #    for planeta in model.get_satellites_objects():
+    #        planets.append(planeta)
+    #        for satellite in planeta.get_satellites_objects():
+    #            planets.append(satellite)
+    #    self.n = len(planets)
 
     def on_key(self, window, key, scancode, action, mods):
         if action != glfw.PRESS:
@@ -93,6 +93,9 @@ class Controller():
 
         elif key == glfw.KEY_ESCAPE:
             sys.exit()
+
+        elif key == glfw.KEY_V:
+            print("Change mode")
 
         else:
             print('Unknown key')
